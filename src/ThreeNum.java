@@ -35,7 +35,6 @@ public class ThreeNum {
             return results;
         }
 
-        int length = nums.length;
 
         // 对数组排序，只排序1次，就不需要对结果排序
         Arrays.sort(nums);
@@ -43,8 +42,11 @@ public class ThreeNum {
         // 找到第一个正数
         int firstNum = 0;
 
+
+        int length = nums.length;
+
         for (int i = 0; i < length; i++) {
-            if(nums[i] >= 0){
+            if (nums[i] >= 0) {
                 firstNum = i;
                 break;
             }
@@ -52,12 +54,14 @@ public class ThreeNum {
 
         //System.out.println(nums.length + ", " + firstNum);
 
-        for (int i = 0; i < length - 2; i++) {
+        // i 最多遍历到正数
+        for (int i = 0; i < firstNum - 1; i++) {
+
             for (int j = i + 1; j < length - 1; j++) {
                 // 减少加的次数
                 int sum = nums[i] + nums[j];
 
-                if(sum > 0){
+                if (sum > 0) {
                     break;
                 }
 
@@ -65,14 +69,14 @@ public class ThreeNum {
                 int start = j + 1;
 
                 // 肯定从正数开始
-                if(start < firstNum ){
+                if (start < firstNum) {
                     start = firstNum;
                 }
 
                 for (int k = start; k < length; k++) {
                     int sum2 = sum + nums[k];
 
-                    if (sum2== 0) {
+                    if (sum2 == 0) {
                         List<Integer> list = Arrays.asList(nums[i], nums[j], nums[k]);
 
                         // 防止重复
@@ -81,7 +85,7 @@ public class ThreeNum {
                         }
 
                         break;
-                    }else if(sum2 > 0){
+                    } else if (sum2 > 0) {
                         break;
                     }
                 }
