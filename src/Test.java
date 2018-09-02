@@ -10,5 +10,9 @@ public class Test {
 
         System.out.println("-------the same-------");
 
+        System.out.println(2<<1);
+        System.out.println(6 % 3);
+
+
     }
 }
