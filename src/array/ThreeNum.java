@@ -36,77 +36,36 @@ public class ThreeNum {
     }
 
     public static List<List<Integer>> threeSum(int[] nums) {
-        List<List<Integer>> results = new ArrayList<>();
-
-        if (nums == null || nums.length < 3) {
-            return results;
-        }
-
         Arrays.sort(nums);
+        List<List<Integer>> list;
+        list = new ArrayList<List<Integer>>();
+        int mid, right;
 
-        int length = nums.length;
+        //left只用循环所有的非正数就行了（不是负数是因为还要考虑[0 0 0]的情况所以是非正数）
+        for (int left = 0; left < nums.length && nums[left] <= 0; left++) {
+            mid = left + 1;
+            right = nums.length - 1;
+            int tmp = 0 - nums[left];
 
-        // 找到第一个非负数
-        int firstNum = length;
+            //跳过left重复匹配
+            if (left > 0 && nums[left] == nums[left - 1])
+                continue;
 
-        for (int i = 0; i < length; i++) {
-            if (nums[i] >= 0) {
-                firstNum = i;
-                break;
+            while (mid < right) {
+                if (nums[mid] + nums[right] == tmp) {
+                    int tmp_mid = nums[mid], tmp_right = nums[right];
+                    list.add(Arrays.asList(nums[left], nums[mid], nums[right]));
+
+                    //跳过right和mid的重复匹配
+                    while (mid < right && nums[++mid] == tmp_mid) ;
+                    while (mid < right && nums[--right] == tmp_right) ;
+                } else if (nums[mid] + nums[right] < tmp)
+                    mid++;
+                else
+                    right--;
             }
         }
-
-        //System.out.println(nums.length + ", " + firstNum);
-
-        // i 最多遍历到正数
-        for (int i = 0; i < length - 2; i++) {
-
-            for (int j = i + 1; j < length - 1; j++) {
-                // 减少加的次数
-                int sum = nums[i] + nums[j];
-
-                if (sum > 0) {
-                    break;
-                }
-
-                // 开始的位置
-                int start = j + 1;
-
-                // 肯定从正数开始
-                if (start < firstNum) {
-                    start = firstNum;
-                }
-
-                //
-                int index = halfSearch(nums, -sum, start, length - 1);
-
-                if (index >= 0) {
-                    List<Integer> e = Arrays.asList(nums[i], nums[j], nums[index]);
-
-                    if (!results.contains(e)) {
-                        results.add(e);
-                    }
-                }
-            }
-        }
-
-        return results;
+        return list;
     }
 
-    public static int halfSearch(int[] arr, int key, int start, int end) {
-        int min = start, max = end, mid;
-
-        while (min <= max) {
-            mid = (min + max) >> 1;
-
-            if (key > arr[mid])
-                min = mid + 1;
-            else if (key < arr[mid])
-                max = mid - 1;
-            else
-                return mid;
-        }
-
-        return -1;
-    }
 }
