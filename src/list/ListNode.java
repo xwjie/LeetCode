@@ -9,7 +9,7 @@ public class ListNode {
         val = x;
     }
 
-    public static ListNode createList(int[] nums) {
+    public static ListNode createList(int... nums) {
         ListNode root = null, node = null;
 
         for (int i = 0; i < nums.length; i++) {
@@ -39,5 +39,11 @@ public class ListNode {
         else{
             System.out.println();
         }
+    }
+
+    @Override
+    public String toString() {
+        print(this);
+        return "";
     }
 }
