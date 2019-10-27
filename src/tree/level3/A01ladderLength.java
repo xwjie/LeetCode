@@ -15,6 +15,9 @@ import java.util.*;
  * 所有单词只由小写字母组成。
  * 字典中不存在重复的单词。
  * 你可以假设 beginWord 和 endWord 是非空的，且二者不相同。
+ *
+ * 解法：
+ * https://leetcode-cn.com/problems/word-ladder/solution/dan-ci-jie-long-by-leetcode/
  */
 public class A01ladderLength {
 
@@ -25,105 +28,75 @@ public class A01ladderLength {
         List<String> words2 = Arrays.asList("hot", "dot", "dog", "lot", "log");
         System.out.println(ladderLength("hit", "cog", words2));
 
-        List<String> words3 = Arrays.asList("a","b","c");
+        List<String> words3 = Arrays.asList("a", "b", "c");
         System.out.println(ladderLength("a", "c", words3));
-    }
 
-    static class TreeNode {
-        String val;
-        int level;
-        List<TreeNode> child;
-
-        public TreeNode(String val, int level) {
-            this.val = val;
-            this.level = level;
-            this.child = new ArrayList<>();
-        }
+        // 应该是4
+        List<String> words4 = Arrays.asList("ion", "rev", "che", "ind", "lie", "wis", "oct", "ham", "jag", "ray", "nun", "ref", "wig", "jul", "ken", "mit", "eel", "paw", "per", "ola", "pat", "old", "maj", "ell", "irk", "ivy", "beg", "fan", "rap", "sun", "yak", "sat", "fit", "tom", "fin", "bug", "can", "hes", "col", "pep", "tug", "ump", "arc", "fee", "lee", "ohs", "eli", "nay", "raw", "lot", "mat", "egg", "cat", "pol", "fat", "joe", "pis", "dot", "jaw", "hat", "roe", "ada", "mac");
+        System.out.println(ladderLength("cat", "fin", words4));
     }
 
     public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
-        if (!wordList.contains(endWord)) {
-            return 0;
-        }
 
-        // 外面传入的不一定能删除
-        wordList = new ArrayList<>(wordList);
+        // Since all words are of same length.
+        int L = beginWord.length();
 
-        if(!wordList.contains(beginWord)) {
-            wordList.add(beginWord);
-        }
+        // Dictionary to hold combination of words that can be formed,
+        // from any given word. By changing one letter at a time.
+        HashMap<String, ArrayList<String>> allComboDict = new HashMap<String, ArrayList<String>>();
 
-        // 构建树
-        TreeNode root = buildTree(endWord, 0, wordList);
+        wordList.forEach(
+                word -> {
+                    for (int i = 0; i < L; i++) {
+                        // Key is the generic word
+                        // Value is a list of words which have the same intermediate generic word.
+                        String newWord = word.substring(0, i) + '*' + word.substring(i + 1, L);
 
-        System.out.println("构建成功");
+                        // HASHMAP 有这个方法
+                        ArrayList<String> transformations =
+                                allComboDict.getOrDefault(newWord, new ArrayList<String>());
 
-        // 层遍历
-        Queue<TreeNode> nodes = new LinkedList<>();
-        // 入队列
-        nodes.offer(root);
+                        transformations.add(word);
+                        allComboDict.put(newWord, transformations);
+                    }
+                });
 
-        while (!nodes.isEmpty()) {
-            // 出队列
-            TreeNode n = nodes.poll();
-            System.out.println(n.val + ":" + n.level);
+        // Queue for BFS
+        Queue<javafx.util.Pair<String, Integer>> Q = new LinkedList<javafx.util.Pair<String, Integer>>();
+        Q.add(new javafx.util.Pair(beginWord, 1));
 
-            // 这里是begin
-            if (beginWord.equals(n.val)) {
-                return n.level + 1;
+        // Visited to make sure we don't repeat processing same word.
+        Set<String> visited = new HashSet<String>();
+        visited.add(beginWord);
+
+        while (!Q.isEmpty()) {
+            javafx.util.Pair<String, Integer> node = Q.remove();
+            String word = node.getKey();
+            int level = node.getValue();
+
+            for (int i = 0; i < L; i++) {
+                // Intermediate words for current word
+                String newWord = word.substring(0, i) + '*' + word.substring(i + 1, L);
+
+                // Next states are all the words which share the same intermediate state.
+                for (String adjacentWord : allComboDict.getOrDefault(newWord, new ArrayList<String>())) {
+
+                    // If at any point if we find what we are looking for
+                    // i.e. the end word - we can return with the answer.
+                    if (adjacentWord.equals(endWord)) {
+                        return level + 1;
+                    }
+
+                    // Otherwise, add it to the BFS Queue. Also mark it visited
+                    if (!visited.contains(adjacentWord)) {
+                        visited.add(adjacentWord);
+
+                        Q.add(new javafx.util.Pair(adjacentWord, level + 1));
+                    }
+                }
             }
-
-            nodes.addAll(n.child);
         }
 
         return 0;
-    }
-
-    private static TreeNode buildTree(String endWord, int level, List<String> wordList) {
-        final int treeNodeSize = endWord.length();
-
-        final TreeNode root = new TreeNode(endWord, level);
-
-        // 外面传入的不一定能删除
-        wordList = new ArrayList<>(wordList);
-        wordList.remove(endWord);
-
-        for (int i = 0; i < wordList.size(); i++) {
-            String key = wordList.get(i);
-
-            // 如果只有1个不同
-            if (only1char(endWord, key)) {
-                wordList.remove(key);
-                // System.out.println("构建，key:" + key + ",level:" + (level + 1));
-
-                // 记得++
-                root.child.add(buildTree(key, level + 1, wordList));
-            }
-        }
-
-        return root;
-    }
-
-    /**
-     * 只有1个字符不同
-     *
-     * @param s1
-     * @param s2
-     * @return
-     */
-    private static boolean only1char(String s1, String s2) {
-        int count = 0, i = 0;
-        while (i < s1.length()) {
-            if (s1.charAt(i) != s2.charAt(i)) {
-                count++;
-
-                if (count > 1) {
-                    return false;
-                }
-            }
-            i++;
-        }
-
-        return count == 1;
     }
 }
